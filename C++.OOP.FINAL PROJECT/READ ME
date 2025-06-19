@@ -1,1 +1,167 @@
+Here's a book of comments on each line ;
 
+#include // Includes input/output stream library
+#include // Includes string handling functions like strcpy
+using namespace std; // Allows use of standard namespace without prefixing with std::
+
+Defin:
+
+struct State {
+char color[10]; // Color name of the light (e.g., "Green", "Red")
+int duration; // Duration in seconds for this light state
+};
+HAS:
+
+class TrafficLightController {
+protected:
+State* states; // Pointer to dynamic array of State
+int stateCount; // Number of states (e.g., Green, Yellow, Red)
+int currentIndex; // Index of the current state
+
+public:
+TrafficLightController() : states(NULL), stateCount(0), currentIndex(0) {} // Constructor initializes members
+
+virtual ~TrafficLightController() {    // Virtual destructor for safe deletion
+    delete[] states;                   // Free dynamically allocated states
+}
+
+virtual void cycle() = 0;              // Pure virtual function (must be overridden by derived classes)
+};
+Last:
+
+class BasicTrafficLight : public TrafficLightController {
+public:
+BasicTrafficLight() {
+stateCount = 3; // 3 states: Green, Yellow, Red
+states = new State[stateCount]; // Allocate memory for 3 State objects
+strcpy(states[0].color, "Green"); // Set color of state 0
+states[0].duration = 60; // Duration for Green
+
+    strcpy(states[1].color, "Yellow");         // Set color of state 1
+    states[1].duration = 5;                    // Duration for Yellow
+
+    strcpy(states[2].color, "Red");            // Set color of state 2
+    states[2].duration = 55;                   // Duration for Red
+}
+
+void cycle() override {
+    State* current = states + currentIndex;    // Get pointer to current state
+    cout << "[Basic] Light: " << current->color 
+         << " for " << current->duration << "s" << endl; // Display state
+    currentIndex = (currentIndex + 1) % stateCount; // Move to next state (cyclic)
+}
+};
+Last:
+
+class PedestrianTrafficLight : public TrafficLightController {
+public:
+PedestrianTrafficLight() {
+stateCount = 2; // 2 states: Walk, Don't Walk
+states = new State[stateCount]; // Allocate memory for 2 State objects
+
+    strcpy(states[0].color, "Walk");           // Set color of state 0
+    states[0].duration = 30;                   // Duration for Walk
+
+    strcpy(states[1].color, "Don't Walk");     // Set color of state 1
+    states[1].duration = 30;                   // Duration for Don't Walk
+}
+
+void cycle() override {
+    State* current = states + currentIndex;    // Get pointer to current state
+    cout << "[Pedestrian] Light: " << current->color 
+         << " for " << current->duration << "s" << endl; // Display state
+    currentIndex = (currentIndex + 1) % stateCount; // Move to next state (cyclic)
+}
+};
+Class:
+
+class TrafficSystem {
+private:
+TrafficLightController** controllers; // Pointer to array of pointers to TrafficLightController
+int controllerCount; // Number of controllers added
+
+public:
+TrafficSystem() {
+controllers = NULL; // Initially no controllers
+controllerCount = 0;
+}
+
+~TrafficSystem() {
+    for (int i = 0; i < controllerCount; i++) {
+        delete controllers[i];             // Delete each controller
+    }
+    delete[] controllers;                  // Delete controller array
+}
+
+void addController(TrafficLightController* controller) {
+    TrafficLightController** newControllers = 
+        new TrafficLightController*[controllerCount + 1]; // New array with 1 extra slot
+
+    for (int i = 0; i < controllerCount; i++) {
+        newControllers[i] = controllers[i]; // Copy old controllers
+    }
+
+    newControllers[controllerCount] = controller; // Add new controller
+    controllerCount++;                            // Increase count
+
+    delete[] controllers;                         // Free old array
+    controllers = newControllers;                 // Point to new array
+}
+
+void removeController(int index) {
+    if (index < 0 || index >= controllerCount) return; // Check valid index
+
+    delete controllers[index];                   // Delete the controller to be removed
+
+    TrafficLightController** newControllers = 
+        new TrafficLightController*[controllerCount - 1]; // New array with 1 less slot
+
+    for (int i = 0, j = 0; i < controllerCount; i++) {
+        if (i != index) {
+            newControllers[j++] = controllers[i]; // Copy all except the removed one
+        }
+    }
+    controllerCount--;                            // Decrease count
+
+    delete[] controllers;                         // Delete old array
+    controllers = newControllers;                 // Point to new array
+}
+
+void cycleAll() {
+    for (int i = 0; i < controllerCount; i++) {
+        controllers[i]->cycle();                  // Call cycle() for each controller
+    }
+}
+
+int getControllerCount() {
+    return controllerCount;                       // Return number of controllers
+}
+};
+Hand:
+
+int main() {
+TrafficSystem system; // Create traffic system
+
+system.addController(new BasicTrafficLight());    // Add a basic traffic light
+system.addController(new PedestrianTrafficLight()); // Add a pedestrian light
+
+for (int i = 0; i < 3; i++) {                     // Run 3 cycles
+    cout << "Cycle " << i + 1 << ":" << endl;
+    system.cycleAll();                            // Cycle through all controllers
+    cout << "-----------------------" << endl;
+}
+
+system.removeController(0);                       // Remove the first controller (Basic)
+cout << "After removing controller 0:" << endl;
+system.cycleAll();                                // Cycle again (only Pedestrian remains)
+
+return 0;                                         // End of program
+}
+Sum:
+This program uses objectlike
+
+TrafficLightControlleris aabst.
+
+BasicTrafficLightyearPedestrianTrafficLightarederiwi
+
+TrafficSystemmanagementadd,rem, hascyt
